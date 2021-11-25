@@ -4,15 +4,17 @@ function [cross_error, final_model] = MI_Train(directory_name,features,frequency
 
 tbl = array2table(flat_data_signal);
 tbl.Y = flat_categories;
-cp = cvpartition(flat_categories,'KFold',10,'Stratify',false);
 if model_type == "svm"
-    Mdl = fitcsvm(tbl,'Y','CVPartition',cp);
+    Mdl = fitcsvm(tbl,'Y');
+    CVMdl = crossval(Mdl,{'kfold', 5,'stratify',false});
 elseif model_type == "lda"
-    Mdl = fitcdiscr(tbl,'Y','CVPartition',cp);
+    Mdl = fitcdiscr(tbl,'Y');
+    CVMdl = crossval(Mdl,{'kfold', 5,'stratify',false});
 elseif model_type == "qda"
-    Mdl = fitcdiscr(tbl,'Y','CVPartition',cp,'DiscrimType','quadratic');
+    Mdl = fitcdiscr(tbl,'Y','CVPartition');
+    CVMdl = crossval(Mdl,{'kfold', 5,'stratify',false});
 end
-cross_error = kfoldLoss(Mdl);
+cross_error = kfoldLoss(CVMdl);
 final_model = Mdl;
 
 end

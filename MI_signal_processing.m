@@ -82,12 +82,18 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
                     continue
                 end
                 if frequency_domain
-                    data_signal = pwelch(raw_data',fs);    
-                    data_signal = data_signal(1:50,:);
-                    flat_data_signal(sig_count,:) = reshape(data_signal,1,[]);
+                    tmp = [start_idx(idx):32:end_idx(idx)-513]';
+                    arr = vec_linspace(tmp,tmp+512,513);
+                    raw_data = filtered_s(:,arr');
+                    tmp_data = reshape(raw_data,5,513,[]);
+                    pout = pwelch(permute(tmp_data, [2 1 3]),fs)';
+                    pout = pout(:,1:50);
+                    p_result = reshape(permute(pout,[2,1]),length(selected_features)*50,[])';
+                    flat_data_signal(sig_count:sig_count+size(arr,1)-1,:) = p_result;
                     categories_extend(sig_count) = categories(idx);
                     jdx = jdx+32;
-                    sig_count = sig_count +1;
+                    sig_count = sig_count+size(arr,1);
+                    break;
                 else
                     tmp = [start_idx(idx):32:end_idx(idx)-513]';
                     arr = vec_linspace(tmp,tmp+512,513);

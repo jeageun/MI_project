@@ -26,7 +26,8 @@ for file_name = [filelist.name ""]
     % Frequency = fs ==> Max frequency means 256Hz.
 
     % USE CAR to filtering
-    s = s - mean(s,2);
+    s = s - mean(s(:,1:16),2);
+    s(:,17)=0;
     
     start_idx = pos(type_verbose=="Both Feet" | type_verbose=="Left hand" | type_verbose=="Right hand");
 
@@ -126,7 +127,7 @@ while length(maxIndex) < 5
         (floor(sortIndex(idx)/50))==(floor(maxIndex./50)) ) | ...
        ( (mod(sortIndex(idx),50) < mod(maxIndex,50)+4 ) & ...
         (floor(sortIndex(idx)/50))==(floor(maxIndex./50)) ) | ...
-        mod(sortIndex(idx),50) > 40;
+        mod(sortIndex(idx),50) > 40 | mod(sortIndex(idx),50) <4;
     if ~all(~cond)
        continue
     end

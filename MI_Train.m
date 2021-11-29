@@ -9,9 +9,9 @@ if model_type == "svm"
     CVMdl = crossval(Mdl,{'kfold', 5,'stratify',false});
 elseif model_type == "lda"
     Mdl = fitcdiscr(tbl,'Y');
-    CVMdl = crossval(Mdl,{'kfold', 5,'stratify',false});
+    CVMdl = crossval(Mdl);
 elseif model_type == "qda"
-    Mdl = fitcdiscr(tbl,'Y','CVPartition');
+    Mdl = fitcdiscr(tbl,'Y');
     CVMdl = crossval(Mdl,{'kfold', 5,'stratify',false});
 end
 cross_error = kfoldLoss(CVMdl);

@@ -22,7 +22,8 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
         % Frequency = fs ==> Max frequency means 256Hz.
 
         % USE CAR to filtering
-        s = s - mean(s,2);
+        s = s - mean(s(:,1:16),2);
+        s(:,17)=0;
 
         % From the features that we make before, compute channel and frequency
         % with that, filter out values and save the only selected values on
@@ -155,13 +156,6 @@ end
 
 function y = vec_linspace(start, goal, steps)
 x = linspace(0,1,steps);
-% difference = (goal - start);
-% 
-% multip = difference'*x;
-% 
-% onesvec = ones(1, steps);
-% startvec = start' * onesvec;
-% 
-% y = startvec + multip;
+
 y = start * ones(1, steps) + (goal - start)*x;
 end

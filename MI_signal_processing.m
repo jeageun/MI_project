@@ -60,7 +60,6 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
                 jdx = jdx+32;
             end
         end
-        cat_set = unique(categories);
         categories_extend = zeros(total_count,1);
         if frequency_domain
             flat_data_signal=zeros(total_count,50*length(selected_features));
@@ -90,7 +89,7 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
                     pout = pout(:,1:50);
                     p_result = reshape(permute(pout,[2,1]),length(selected_features)*50,[])';
                     flat_data_signal(sig_count:sig_count+size(arr,1)-1,:) = p_result;
-                    categories_extend(sig_count) = categories(idx);
+                    categories_extend(sig_count:sig_count+size(arr,1)-1) = categories(idx);
                     jdx = jdx+32;
                     sig_count = sig_count+size(arr,1);
                     break;
@@ -130,6 +129,11 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
         file_count = file_count +1;
         flat_data_signal = [flat_data_signal;res_struct.(strcat('X',num2str(file_count)))];
         flat_categories = [flat_categories;res_struct.(strcat('Y',num2str(file_count)))];    
+    end
+    if length(unique(flat_categories))>2
+        % There is a case of rlhb but rhbf prediction. See ES31OS case.
+        flat_data_signal = flat_data_signal(flat_categories>769,:);
+        flat_categories = flat_categories(flat_categories>769);
     end
 end
 

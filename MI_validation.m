@@ -4,7 +4,14 @@ function [outputArg1,outputArg2] = MI_validation(directory_name,features,models)
 [flat_data_signal, ~] = MI_signal_processing(directory_name,features,true);
 
 names=split(directory_name,'\');
-[Pre_label,~] = predict(models.(names(end-1)),flat_data_signal);
+
+frequency = mod(features,50);
+base = 0:50:200;
+tmp = base+frequency;
+selected = vec_linspace(tmp',tmp'+4,5);
+selected = reshape(selected',1,[]);
+
+[Pre_label,~] = predict(models.(names(end-1)),flat_data_signal(:,selected));
 
 rootdir = directory_name;
 filelist = dir(fullfile(rootdir, '**\*.gdf'));  %get list of files and folders in any subfolder
@@ -53,10 +60,10 @@ for file_name = [filelist.name ""]
             jdx = jdx+32;
             accum_poss = accum_poss + (cat_set == Pre_label(count_pre_sample));
             difference = accum_poss(1) - accum_poss(2);
-            if difference > 10 
+            if difference > 15 
                 pre_cat_trial(idx) = cat_set(1);
                 break;
-            elseif difference < -10
+            elseif difference < -15
                 pre_cat_trial(idx) = cat_set(2);
                 break;
             end         

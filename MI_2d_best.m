@@ -107,6 +107,19 @@ indexToRepeatedValue = (countOfX>=2);
 repeatedly_large_idx = uniqueX(indexToRepeatedValue);
 reward_value(repeatedly_large_idx) = reward_value(repeatedly_large_idx) + 0.1;
 
+%Find using moving sum of reward value.
+%We need this for this case;
+%Feature number | score
+% 707 0.4
+% 708 0.5
+% 709 0.8
+% 710 1.1
+% 711 1.4
+% 712 0.1
+% 713 0.0 ...
+% We want to choose 707, not 711 as a feature. Since 711 will choose
+% 711-715 as Features.
+reward_value = movsum(reward_value,[0,4]);
 %mdl = fscnca(flat_features,categories_extend,'Solver','sgd','Verbose',1,'MiniBatchSize',64,'IterationLimit',200,'NumTuningIterations',15);
 
 figure()

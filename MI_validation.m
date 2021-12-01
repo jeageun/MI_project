@@ -1,7 +1,7 @@
 function [outputArg1,outputArg2] = MI_validation(directory_name,features,models)
 %MI_VALIDATION Summary of this function goes here
 %   Detailed explanation goes here
-[flat_data_signal, ~] = MI_signal_processing(directory_name,features,true);
+[flat_data_signal, actual_labels] = MI_signal_processing(directory_name,features,true);
 
 names=split(directory_name,'\');
 
@@ -60,10 +60,10 @@ for file_name = [filelist.name ""]
             jdx = jdx+32;
             accum_poss = accum_poss + (cat_set == Pre_label(count_pre_sample));
             difference = accum_poss(1) - accum_poss(2);
-            if difference > 15 
+            if difference > 5
                 pre_cat_trial(idx) = cat_set(1);
                 break;
-            elseif difference < -15
+            elseif difference < -5
                 pre_cat_trial(idx) = cat_set(2);
                 break;
             end         

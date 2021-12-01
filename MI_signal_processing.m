@@ -10,6 +10,7 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
         if file_name == ""
             continue
         end
+        %figure();
         file_count = file_count+1;
         file_name = convertStringsToChars(fullfile(rootdir,file_name));
         [s,h]=sload([file_name]);
@@ -86,6 +87,8 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
                     raw_data = filtered_s(:,arr');
                     tmp_data = reshape(raw_data,5,513,[]);
                     pout = pwelch(permute(tmp_data, [2 1 3]),fs)';
+                    
+                    %pwelch(permute(tmp_data, [2 1 3]),fs)
                     pout = pout(:,1:50);
                     p_result = reshape(permute(pout,[2,1]),length(selected_features)*50,[])';
                     flat_data_signal(sig_count:sig_count+size(arr,1)-1,:) = p_result;
@@ -160,7 +163,7 @@ function res = labeling(x)
         res = "Miss";
       otherwise
         res = "WHATHAPPEN";
-        x
+        x;
   end
 end
 

@@ -194,3 +194,18 @@ function res = labeling(x)
   end
 end
 
+%%% To get a different heat maps
+% subplot(1,3,1)
+% heatmap(reshape(score_result(1,:),50,[])','GridVisible','off','ColorLimits',[0 0.6]),colormap(hot)
+% xlabel('Frequency')
+% ylabel('Channel')
+% subplot(1,3,2)
+% heatmap(reshape(score_result(2,:),50,[])','GridVisible','off','ColorLimits',[0 0.6]),colormap(hot)
+% xlabel('Frequency')
+% ylabel('Channel')
+% subplot(1,3,3)
+% heatmap(reshape(score_result(3,:),50,[])','GridVisible','off','ColorLimits',[0 0.6]),colormap(hot)
+% xlabel('Frequency')
+% ylabel('Channel')
+% figure
+

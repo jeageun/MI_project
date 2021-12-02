@@ -1,14 +1,14 @@
-function [outputArg1,outputArg2] = MI_validation(directory_name,features,models)
+function [outputArg1,outputArg2] = MI_validation(directory_name,features,models,granularity_Hz)
 %MI_VALIDATION Summary of this function goes here
 %   Detailed explanation goes here
-[flat_data_signal, actual_labels] = MI_signal_processing(directory_name,features,true);
+[flat_data_signal, actual_labels] = MI_signal_processing(directory_name,features,true,granularity_Hz);
 
 names=split(directory_name,'\');
 
 frequency = mod(features,50);
-base = 0:50:200;
+base = 0:50:50*(length(features)-1);
 tmp = base+frequency;
-selected = vec_linspace(tmp',tmp'+4,5);
+selected = vec_linspace(tmp',tmp'+granularity_Hz-1,granularity_Hz);
 selected = reshape(selected',1,[]);
 
 [Pre_label,~] = predict(models.(names(end-1)),flat_data_signal(:,selected));

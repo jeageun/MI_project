@@ -1,4 +1,4 @@
-function [maxIndex] = MI_2d_best(directory_name)
+function [maxIndex] = MI_2d_best(directory_name,granularity_Hz)
 % This function will get fisher score with stationary result. 
 % It measure the fisher score in one session (Online or offline). When we
 % call the function with online/offline directory, there are several gdf
@@ -116,10 +116,12 @@ reward_value(repeatedly_large_idx) = reward_value(repeatedly_large_idx) + 0.1;
 % 710 1.1
 % 711 1.4
 % 712 0.1
-% 713 0.0 ...
+% 713 0.0 
+% 714 0.0
+% 715 0.1 ...
 % We want to choose 707, not 711 as a feature. Since 711 will choose
 % 711-715 as Features.
-reward_value = movsum(reward_value,[0,4]);
+reward_value = movsum(reward_value,[0,granularity_Hz-1]);
 %mdl = fscnca(flat_features,categories_extend,'Solver','sgd','Verbose',1,'MiniBatchSize',64,'IterationLimit',200,'NumTuningIterations',15);
 
 figure()
@@ -134,13 +136,13 @@ heatmap(scores','GridVisible','off'),colormap(hot)
 [~, sortIndex] = sort(reward_value, 'descend');
 maxIndex = [sortIndex(1)];
 idx = 1;
-while length(maxIndex) < 5
+while length(maxIndex) < 10
     idx = idx + 1;
-    cond = ( (mod(sortIndex(idx),50) > mod(maxIndex,50)-4 ) & ...
+    cond = ( (mod(sortIndex(idx),50) > mod(maxIndex,50)-(granularity_Hz-1) ) & ...
         (floor(sortIndex(idx)/50))==(floor(maxIndex./50)) ) | ...
-       ( (mod(sortIndex(idx),50) < mod(maxIndex,50)+4 ) & ...
+       ( (mod(sortIndex(idx),50) < mod(maxIndex,50)+(granularity_Hz-1) ) & ...
         (floor(sortIndex(idx)/50))==(floor(maxIndex./50)) ) | ...
-        mod(sortIndex(idx),50) > 40 | mod(sortIndex(idx),50) <4;
+        mod(sortIndex(idx),50) > 40 | mod(sortIndex(idx),50) <(granularity_Hz-1);
     if ~all(~cond)
        continue
     end

@@ -1,5 +1,9 @@
-function [flat_data_signal, flat_categories] = MI_signal_processing(directory_name,selected_features,frequency_domain)
-
+function [flat_data_signal, flat_categories] = MI_signal_processing(directory_name,selected_features,frequency_domain,granularity_Hz,allin1)
+    if nargin > 4
+        allsig = allin1;
+    else
+        allsig = false;
+    end
     rootdir = directory_name;
     filelist = dir(fullfile(rootdir, '**\*.gdf'));  %get list of files and folders in any subfolder
     filelist = filelist(~[filelist.isdir]);  %remove folders from list
@@ -29,14 +33,23 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
         % From the features that we make before, compute channel and frequency
         % with that, filter out values and save the only selected values on
         % filtered_s
-        filters = [mod(selected_features,50)' mod(selected_features,50)'+4];
-        filtered_s=zeros(length(filters),length(s));
+        filters = [mod(selected_features,50)' mod(selected_features,50)'+granularity_Hz-1];
+        if allsig
+            filtered_s=zeros(length(filters),length(s)*17);
+        else
+            filtered_s=zeros(length(filters),length(s));
+        end
         for i = 1:length(filters)
             channels = floor(selected_features./50+1);
             N = 5;
             [B, A] = butter(N,[filters(i,:)]*2 / fs);
             s_a = filter(B,A,s);
-            filtered_s(i,:) = s_a(:,channels(i))';
+            if allsig
+                filtered_s(i,:) = reshape(s_a(:,:),1,[]);
+            else
+                filtered_s(i,:) = s_a(:,channels(i))';
+            end
+            
         end
 
 
@@ -65,7 +78,11 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
         if frequency_domain
             flat_data_signal=zeros(total_count,50*length(selected_features));
         else
-            flat_data_signal=zeros(total_count,513*length(selected_features));
+            if allsig
+                flat_data_signal=zeros(total_count,513*length(selected_features)*17);
+            else
+                flat_data_signal=zeros(total_count,513*length(selected_features));
+            end
         end
         sig_count = 1;
         for idx = [1:length(end_idx)]  
@@ -78,14 +95,14 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
                     % correctly. In this case, just ignore that data. If we
                     % could remove this part in previous feature selection
                     % session, data would be better.
-                    jdx = jdx+32;
+                    jdx = jdx+32*512;
                     continue
                 end
                 if frequency_domain
                     tmp = [start_idx(idx):32:end_idx(idx)-513]';
                     arr = vec_linspace(tmp,tmp+512,513);
                     raw_data = filtered_s(:,arr');
-                    tmp_data = reshape(raw_data,5,513,[]);
+                    tmp_data = reshape(raw_data,length(selected_features),513,[]);
                     pout = pwelch(permute(tmp_data, [2 1 3]),fs)';
                     
                     %pwelch(permute(tmp_data, [2 1 3]),fs)
@@ -99,8 +116,17 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
                 else
                     tmp = [start_idx(idx):32:end_idx(idx)-513]';
                     arr = vec_linspace(tmp,tmp+512,513);
+                    
+                    if allsig
+                        tt = 0:length(s):length(s)*16;
+                        arr = [arr+tt(1) arr+tt(2) arr+tt(3) arr+tt(4) arr+tt(5) arr+tt(6) arr+tt(7) arr+tt(8) arr+tt(9) arr+tt(10) arr+tt(11) arr+tt(12) arr+tt(13) arr+tt(14) arr+tt(15) arr+tt(16) arr+tt(17)];
+                    end
                     raw_data = filtered_s(:,arr');
-                    tmp_data = reshape(raw_data,5,513,[]);
+                    if allsig
+                        tmp_data = reshape(raw_data,size(selected_features,1),513*17,[]);
+                    else
+                        tmp_data = reshape(raw_data,size(selected_features,1),513,[]);
+                    end
                     ttmp_data = reshape(permute(tmp_data, [2 1 3]),[],size(arr,1));
                     flat_data_signal(sig_count:sig_count+size(arr,1)-1,:) = ttmp_data';
                     categories_extend(sig_count:sig_count+size(arr,1)-1) = categories(idx);
@@ -112,8 +138,11 @@ function [flat_data_signal, flat_categories] = MI_signal_processing(directory_na
         end
 
         % remove all zero rows from the data
-        flat_data_signal( all(~flat_data_signal,2), : ) = [];
-        categories_extend( all(~categories_extend,2), : ) = [];
+        if allsig
+        else
+            flat_data_signal( all(~flat_data_signal,2), : ) = [];
+            categories_extend( all(~categories_extend,2), : ) = [];
+        end
 
         res_struct.(strcat('X',num2str(file_count)))= flat_data_signal;
         res_struct.(strcat('Y',num2str(file_count)))=categories_extend;    

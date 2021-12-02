@@ -1,11 +1,11 @@
-function [cross_error, final_model] = MI_Train(directory_name,features,frequency_domain,model_type)
+function [cross_error, final_model] = MI_Train(directory_name,features,frequency_domain,model_type,granularity_Hz)
     
-[flat_data_signal, flat_categories] = MI_signal_processing(directory_name,features,frequency_domain);
+[flat_data_signal, flat_categories] = MI_signal_processing(directory_name,features,frequency_domain,granularity_Hz);
 
 frequency = mod(features,50);
-base = 0:50:200;
+base = 0:50:50*(length(features)-1);
 tmp = base+frequency;
-selected = vec_linspace(tmp',tmp'+4,5);
+selected = vec_linspace(tmp',tmp'+granularity_Hz-1,granularity_Hz);
 selected = reshape(selected',1,[]);
 tbl = array2table(flat_data_signal(:,selected));
 tbl.Y = flat_categories;

@@ -21,14 +21,14 @@ channels = floor(features./50+1);
 figure()
 plot(grandavgA);
 names = split(rootdir,'\');
-title('Grand Average with ' + names(end-1) + ' ' + names(end),cat_set(1))
+title(['Grand Average with ' + names(end-1) + ' ' + names(end),cat_set(1)])
 legend(strcat("Frequency ",num2str(filters)) + strcat("Hz Channel ",num2str(channels')))
 xlabel('time(msec)')
 ylabel('Signal(uV)')
 ylim([min([grandavgA, grandavgB],[],'all'),max([grandavgA, grandavgB],[],'all')]);
 figure()
 plot(grandavgB);
-title('Grand Average with ' + names(end-1) + ' ' + names(end),cat_set(2))
+title(['Grand Average with ' + names(end-1) + ' ' + names(end),cat_set(2)])
 legend(strcat("Frequency ",num2str(filters)) + strcat("Hz Channel ",num2str(channels')))
 xlabel('time(msec)')
 ylabel('Signal(uV)')
